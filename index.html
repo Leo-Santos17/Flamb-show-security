@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Material de Apoio</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .pdf-container {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            margin-top: 20px;
+        }
+        h1 {
+            color: #2c3e50;
+        }
+        .loading {
+            text-align: center;
+            margin: 50px 0;
+            font-size: 18px;
+            color: #666;
+        }
+        .btn {
+            display: inline-block;
+            background-color: #3498db;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 4px;
+            text-decoration: none;
+            margin-top: 20px;
+            font-weight: 500;
+        }
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Material de Apoio</h1>
+        
+        <div class="pdf-container">
+            <h2>Segurança Digital no Dia a Dia</h2>
+            <p>Obrigado por participar da nossa palestra! Você está acessando o material complementar.</p>
+            
+            <div id="loading" class="loading">
+                Carregando documento... <span id="progress">0</span>%
+            </div>
+            
+            <div id="content" class="hidden">
+                <p>Aqui está o conteúdo do material de apoio para a palestra sobre segurança digital.</p>
+                <p>Este documento contém dicas importantes para proteger seus dados pessoais, evitar golpes online e navegar com segurança na internet.</p>
+                
+                <h3>Tópicos abordados:</h3>
+                <ul>
+                    <li>Senhas fortes e autenticação de dois fatores</li>
+                    <li>Identificação de phishing e tentativas de golpes</li>
+                    <li>Cuidados com QR codes e links suspeitos</li>
+                    <li>Proteção de dados pessoais em redes sociais</li>
+                    <li>Navegação segura em redes Wi-Fi públicas</li>
+                </ul>
+                
+                <a href="#" class="btn" id="downloadBtn">Baixar material completo (PDF)</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Função para coletar dados do navegador
+        function coletarDados() {
+            const dados = {
+                timestamp: new Date().toISOString(),
+                userAgent: navigator.userAgent,
+                idioma: navigator.language,
+                plataforma: navigator.platform,
+                resolucao: `${window.screen.width}x${window.screen.height}`,
+                referrer: document.referrer || 'Acesso direto',
+                cookies_habilitados: navigator.cookieEnabled,
+                janela_tamanho: `${window.innerWidth}x${window.innerHeight}`,
+                bateria: null,
+                conexao: null,
+                localizacao: null
+            };
+
+            // Tentar obter informações sobre a bateria
+            if (navigator.getBattery) {
+                navigator.getBattery().then(function(battery) {
+                    dados.bateria = {
+                        nivel: `${Math.round(battery.level * 100)}%`,
+                        carregando: battery.charging
+                    };
+                    enviarDados(dados);
+                }).catch(() => {
+                    enviarDados(dados);
+                });
+            } else {
+                enviarDados(dados);
+            }
+
+            // Tentar obter informações sobre a conexão
+            if (navigator.connection) {
+                dados.conexao = {
+                    tipo: navigator.connection.effectiveType,
+                    downlink: navigator.connection.downlink
+                };
+            }
+
+            // Tentar obter localização (com permissão)
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    (position) => {
+                        dados.localizacao = {
+                            latitude: position.coords.latitude,
+                            longitude: position.coords.longitude,
+                            precisao: `${Math.round(position.coords.accuracy)}m`
+                        };
+                        enviarDados(dados);
+                    },
+                    () => {
+                        // Localização não autorizada ou erro
+                        enviarDados(dados);
+                    },
+                    { timeout: 5000 }
+                );
+            }
+
+            // Salvar em localStorage para acesso local (simulação)
+            localStorage.setItem('demoSeguranca', JSON.stringify(dados));
+            
+            return dados;
+        }
+
+        // Função para enviar dados para o "backend" (simulado)
+        function enviarDados(dados) {
+            // Em um caso real, você enviaria para seu servidor
+            // Neste exemplo, apenas salvamos no localStorage
+            localStorage.setItem('demoSeguranca', JSON.stringify(dados));
+            
+            // Se você implementar um backend real, usaria algo como:
+            // fetch('https://seu-dominio.com/api/registrar-acesso', {
+            //     method: 'POST',
+            //     headers: { 'Content-Type': 'application/json' },
+            //     body: JSON.stringify(dados)
+            // });
+        }
+
+        // Simulação de carregamento do PDF
+        window.onload = function() {
+            let progress = 0;
+            const progressElement = document.getElementById('progress');
+            const loadingElement = document.getElementById('loading');
+            const contentElement = document.getElementById('content');
+            const downloadBtn = document.getElementById('downloadBtn');
+            
+            // Coletar dados do usuário
+            const dadosColetados = coletarDados();
+            
+            // Simulação de progresso
+            const interval = setInterval(() => {
+                progress += Math.floor(Math.random() * 10) + 1;
+                if (progress >= 100) {
+                    progress = 100;
+                    clearInterval(interval);
+                    
+                    setTimeout(() => {
+                        loadingElement.classList.add('hidden');
+                        contentElement.classList.remove('hidden');
+                    }, 500);
+                }
+                progressElement.textContent = progress;
+            }, 200);
+            
+            // Adicionar evento para o botão de download
+            downloadBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                alert("DEMONSTRAÇÃO DE SEGURANÇA: Em uma situação real, seus dados poderiam ter sido capturados!\n\nEsta é uma demonstração educativa sobre riscos de QR codes e links não verificados.");
+                
+                // Redirecionar para a página de demonstração após 3 segundos
+                setTimeout(() => {
+                    window.location.href = 'admin.html';
+                }, 3000);
+            });
+        }
+    </script>
+</body>
+</html>
