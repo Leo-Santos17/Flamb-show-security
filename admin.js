@@ -1,3 +1,6 @@
+// Configurações da API
+const API_URL = 'http://seu-servidor/api'; // Substitua pelo URL real do seu servidor
+
 // Função para abrir abas
 function openTab(evt, tabName) {
     const tabcontent = document.getElementsByClassName("tabcontent");
@@ -56,60 +59,82 @@ function detectDevice(userAgent) {
     return "Desktop/Notebook";
 }
 
-// Função para carregar os dados
-function loadData() {
-    const allData = JSON.parse(localStorage.getItem('securityDemoData') || '[]');
-    const tableBody = document.getElementById('tableBody');
-    tableBody.innerHTML = '';
-    
-    let osCount = {};
-    let browserCount = {};
-    let locationCount = 0;
-    
-    allData.forEach((item, index) => {
-        const row = document.createElement('tr');
+// Função para carregar os dados da API
+async function loadData() {
+    try {
+        // Exibir indicador de carregamento (opcional)
+        document.getElementById('tableBody').innerHTML = '<tr><td colspan="7">Carregando dados...</td></tr>';
         
-        const os = detectOS(item.userAgent);
-        const browser = detectBrowser(item.userAgent);
-        const device = detectDevice(item.userAgent);
+        // Buscar dados da API
+        const response = await fetch(`${API_URL}/get_data.php`);
         
-        // Contagem para estatísticas
-        osCount[os] = (osCount[os] || 0) + 1;
-        browserCount[browser] = (browserCount[browser] || 0) + 1;
-        if (item.location && typeof item.location !== 'string') {
-            locationCount++;
+        if (!response.ok) {
+            throw new Error(`Erro HTTP: ${response.status}`);
         }
         
-        const timestamp = new Date(item.timestamp).toLocaleString();
+        const allData = await response.json();
+        const tableBody = document.getElementById('tableBody');
+        tableBody.innerHTML = '';
         
-        row.innerHTML = `
-            <td>${timestamp}</td>
-            <td>${device}</td>
-            <td>${os}</td>
-            <td>${browser}</td>
-            <td>${item.ipInfo || 'N/A'}</td>
-            <td>${item.batteryLevel || 'N/A'}</td>
-            <td><button class="btn" onclick="showDetails(${index})">Detalhes</button></td>
-        `;
+        let osCount = {};
+        let browserCount = {};
+        let locationCount = 0;
         
-        tableBody.appendChild(row);
-    });
-    
-    // Atualizar estatísticas
-    document.getElementById('totalAccesses').textContent = allData.length;
-    document.getElementById('totalOS').textContent = Object.keys(osCount).length;
-    document.getElementById('totalBrowsers').textContent = Object.keys(browserCount).length;
-    document.getElementById('totalWithLocation').textContent = locationCount;
-    
-    // Atualizar estatísticas de dispositivos se a aba estiver aberta
-    if (document.getElementById('devicesTab').style.display === 'block') {
-        updateDeviceStats();
+        allData.forEach((item, index) => {
+            const row = document.createElement('tr');
+            
+            const os = detectOS(item.userAgent);
+            const browser = detectBrowser(item.userAgent);
+            const device = detectDevice(item.userAgent);
+            
+            // Contagem para estatísticas
+            osCount[os] = (osCount[os] || 0) + 1;
+            browserCount[browser] = (browserCount[browser] || 0) + 1;
+            if (item.location) {
+                locationCount++;
+            }
+            
+            const timestamp = new Date(item.timestamp).toLocaleString();
+            
+            row.innerHTML = `
+                <td>${timestamp}</td>
+                <td>${device}</td>
+                <td>${os}</td>
+                <td>${browser}</td>
+                <td>${item.ipInfo || 'N/A'}</td>
+                <td>${item.batteryLevel || 'N/A'}</td>
+                <td><button class="btn" onclick="showDetails(${index})">Detalhes</button></td>
+            `;
+            
+            tableBody.appendChild(row);
+        });
+        
+        // Armazenar dados temporariamente para acesso rápido
+        window.securityDemoData = allData;
+        
+        // Atualizar estatísticas
+        document.getElementById('totalAccesses').textContent = allData.length;
+        document.getElementById('totalOS').textContent = Object.keys(osCount).length;
+        document.getElementById('totalBrowsers').textContent = Object.keys(browserCount).length;
+        document.getElementById('totalWithLocation').textContent = locationCount;
+        
+        // Atualizar estatísticas de dispositivos se a aba estiver aberta
+        if (document.getElementById('devicesTab').style.display === 'block') {
+            updateDeviceStats();
+        }
+    } catch (error) {
+        console.error('Erro ao carregar dados:', error);
+        document.getElementById('tableBody').innerHTML = `<tr><td colspan="7">Erro ao carregar dados: ${error.message}</td></tr>`;
     }
 }
 
 // Função para atualizar estatísticas de dispositivos
 function updateDeviceStats() {
-    const allData = JSON.parse(localStorage.getItem('securityDemoData') || '[]');
+    if (!window.securityDemoData) {
+        return;
+    }
+    
+    const allData = window.securityDemoData;
     
     let osCount = {};
     let browserCount = {};
@@ -191,8 +216,11 @@ function updateDeviceStats() {
 
 // Função para mostrar detalhes
 function showDetails(index) {
-    const allData = JSON.parse(localStorage.getItem('securityDemoData') || '[]');
-    const item = allData[index];
+    if (!window.securityDemoData) {
+        return;
+    }
+    
+    const item = window.securityDemoData[index];
     
     const detailView = document.getElementById('detailView');
     detailView.style.display = 'block';
@@ -200,10 +228,8 @@ function showDetails(index) {
     const detailContent = document.getElementById('detailContent');
     
     let locationText = 'Não disponível';
-    if (item.location && typeof item.location !== 'string') {
+    if (item.location) {
         locationText = `Latitude: ${item.location.latitude}, Longitude: ${item.location.longitude}`;
-    } else if (typeof item.location === 'string') {
-        locationText = item.location;
     }
     
     detailContent.innerHTML = `
@@ -250,7 +276,7 @@ function showDetails(index) {
         </div>
         
         <!-- Se houver localização, mostrar mapa -->
-        ${item.location && typeof item.location !== 'string' ? `
+        ${item.location ? `
         <div class="detail-row">
             <div class="detail-label">Mapa:</div>
             <div class="detail-value">
@@ -266,82 +292,65 @@ function showDetails(index) {
 
 // Função para exportar dados
 function exportData() {
-    const allData = JSON.parse(localStorage.getItem('securityDemoData') || '[]');
-    
-    if (allData.length === 0) {
-        alert('Não há dados para exportar');
-        return;
-    }
-    
-    // Converter para CSV
-    let csvContent = "data:text/csv;charset=utf-8,";
-    
-    // Cabeçalhos
-    const headers = ["Data/Hora", "Dispositivo", "Sistema", "Navegador", "IP", "Bateria", "Idioma", "Localização"];
-    csvContent += headers.join(",") + "\n";
-    
-    // Linhas de dados
-    allData.forEach(item => {
-        const os = detectOS(item.userAgent);
-        const browser = detectBrowser(item.userAgent);
-        const device = detectDevice(item.userAgent);
-        
-        let locationText = "Não disponível";
-        if (item.location && typeof item.location !== 'string') {
-            locationText = `${item.location.latitude},${item.location.longitude}`;
-        }
-        
-        const row = [
-            new Date(item.timestamp).toLocaleString(),
-            device,
-            os,
-            browser,
-            item.ipInfo || 'N/A',
-            item.batteryLevel || 'N/A',
-            item.language,
-            locationText
-        ];
-        
-        // Escapar valores com vírgulas
-        const escapedRow = row.map(value => {
-            // Se contém vírgula, aspas ou quebra de linha, colocar entre aspas
-            if (/[",\n\r]/.test(value)) {
-                return `"${value.replace(/"/g, '""')}"`;
-            }
-            return value;
-        });
-        
-        csvContent += escapedRow.join(",") + "\n";
-    });
-    
-    // Criar link para download
-    const encodedUri = encodeURI(csvContent);
-    const link = document.createElement("a");
-    link.setAttribute("href", encodedUri);
-    link.setAttribute("download", "dados_demonstracao_seguranca.csv");
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+    // Redirecionar para o endpoint de exportação
+    window.location.href = `${API_URL}/export_data.php`;
 }
 
-// Adicionar listeners de eventos
+// Função para limpar todos os dados
+async function clearData() {
+    if (confirm('Tem certeza que deseja limpar todos os dados? Esta ação não pode ser desfeita.')) {
+        try {
+            const response = await fetch(`${API_URL}/delete_data.php`, {
+                method: 'DELETE'
+            });
+            
+            if (!response.ok) {
+                throw new Error(`Erro HTTP: ${response.status}`);
+            }
+            
+            // Limpar dados armazenados localmente
+            window.securityDemoData = null;
+            
+            // Recarregar dados
+            loadData();
+            
+            // Fechar a janela de detalhes se estiver aberta
+            document.getElementById('detailView').style.display = 'none';
+            
+            alert('Dados removidos com sucesso!');
+        } catch (error) {
+            console.error('Erro ao limpar dados:', error);
+            alert(`Erro ao limpar dados: ${error.message}`);
+        }
+    }
+}
+
+// Função para fechar detalhes
+function closeDetails() {
+    document.getElementById('detailView').style.display = 'none';
+}
+
+// Adicionar listeners de eventos quando o DOM estiver carregado
 document.addEventListener('DOMContentLoaded', function() {
+    // Adicionar listener para o botão de atualizar
     document.getElementById('refreshBtn').addEventListener('click', loadData);
     
+    // Adicionar listener para o botão de exportar
     document.getElementById('exportBtn').addEventListener('click', exportData);
     
-    document.getElementById('clearBtn').addEventListener('click', function() {
-        if (confirm('Tem certeza que deseja limpar todos os dados? Esta ação não pode ser desfeita.')) {
-            localStorage.removeItem('securityDemoData');
-            loadData();
-            document.getElementById('detailView').style.display = 'none';
-        }
-    });
+    // Adicionar listener para o botão de limpar
+    document.getElementById('clearBtn').addEventListener('click', clearData);
+    
+    // Adicionar listener para o botão de fechar detalhes
+    document.getElementById('closeDetailBtn').addEventListener('click', closeDetails);
     
     // Carregar dados ao iniciar
     loadData();
 });
 
-// Expor função para chamadas externas
+// Expor funções para chamadas externas
 window.showDetails = showDetails;
 window.openTab = openTab;
+window.closeDetails = closeDetails;
+window.clearData = clearData;
+window.exportData = exportData;
