@@ -1,3 +1,7 @@
+let osCount = {};
+let browserCount = {};
+let locationCount = 0;
+
 // Função para abrir abas
 function openTab(evt, tabName) {
     const tabcontent = document.getElementsByClassName("tabcontent");
@@ -58,15 +62,15 @@ function detectDevice(userAgent) {
 
 // Função para carregar os dados
 function loadData() {
-    const allData = JSON.parse(localStorage.getItem('securityDemoData') || '[]');
+    // const allData = JSON.parse(localStorage.getItem('securityDemoData') || '[]');
     const tableBody = document.getElementById('tableBody');
     tableBody.innerHTML = '';
-    
-    let osCount = {};
-    let browserCount = {};
-    let locationCount = 0;
-    
-    allData.forEach((item, index) => {
+
+    fetch('https://api-flamb-security.onrender.com/dados') // substitua pela rota correta
+    .then(response => response.json())
+    .then(allData => {
+        console.log('Dados recebidos:', allData);
+        allData.forEach((item, index) => {
         const row = document.createElement('tr');
         
         const os = detectOS(item.userAgent);
@@ -76,7 +80,7 @@ function loadData() {
         // Contagem para estatísticas
         osCount[os] = (osCount[os] || 0) + 1;
         browserCount[browser] = (browserCount[browser] || 0) + 1;
-        if (item.location && typeof item.location !== 'string') {
+        if (item.location_lat && typeof item.location_lng === 'string') {
             locationCount++;
         }
         
@@ -93,182 +97,208 @@ function loadData() {
         `;
         
         tableBody.appendChild(row);
+        
+        
+        
+        // Atualizar estatísticas
+        document.getElementById('totalAccesses').textContent = allData.length;
+        document.getElementById('totalOS').textContent = Object.keys(osCount).length;
+        document.getElementById('totalBrowsers').textContent = Object.keys(browserCount).length;
+        document.getElementById('totalWithLocation').textContent = locationCount;
+        
+        // Atualizar estatísticas de dispositivos se a aba estiver aberta
+        if (document.getElementById('devicesTab').style.display === 'block') {
+            updateDeviceStats();
+        }
+
+    });
+    })
+    .catch(error => {
+        console.error('Erro ao buscar dados:', error);
     });
     
-    // Atualizar estatísticas
-    document.getElementById('totalAccesses').textContent = allData.length;
-    document.getElementById('totalOS').textContent = Object.keys(osCount).length;
-    document.getElementById('totalBrowsers').textContent = Object.keys(browserCount).length;
-    document.getElementById('totalWithLocation').textContent = locationCount;
     
-    // Atualizar estatísticas de dispositivos se a aba estiver aberta
-    if (document.getElementById('devicesTab').style.display === 'block') {
-        updateDeviceStats();
-    }
 }
 
 // Função para atualizar estatísticas de dispositivos
 function updateDeviceStats() {
-    const allData = JSON.parse(localStorage.getItem('securityDemoData') || '[]');
-    
-    let osCount = {};
-    let browserCount = {};
-    
-    allData.forEach(item => {
-        const os = detectOS(item.userAgent);
-        const browser = detectBrowser(item.userAgent);
+    //const allData = JSON.parse(localStorage.getItem('securityDemoData') || '[]');
+
+    fetch('https://api-flamb-security.onrender.com/dados') // substitua pela rota correta
+    .then(response => response.json())
+    .then(allData => {
+        console.log('Dados recebidos para atualizar:', allData);
+
+        let osCount = {};
+        let browserCount = {};
         
-        osCount[os] = (osCount[os] || 0) + 1;
-        browserCount[browser] = (browserCount[browser] || 0) + 1;
+        
+        allData.forEach(item => {
+            const os = detectOS(item.userAgent);
+            const browser = detectBrowser(item.userAgent);
+            
+            osCount[os] = (osCount[os] || 0) + 1;
+            browserCount[browser] = (browserCount[browser] || 0) + 1;
+        });
+        
+        // Mostrar estatísticas de sistemas operacionais
+        const osStatsContent = document.getElementById('osStatsContent');
+        osStatsContent.innerHTML = '';
+        
+        if (Object.keys(osCount).length > 0) {
+            const osTable = document.createElement('table');
+            osTable.innerHTML = `
+                <thead>
+                    <tr>
+                        <th>Sistema Operacional</th>
+                        <th>Contagem</th>
+                        <th>Porcentagem</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            `;
+            
+            for (const os in osCount) {
+                const percent = ((osCount[os] / allData.length) * 100).toFixed(1);
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${os}</td>
+                    <td>${osCount[os]}</td>
+                    <td>${percent}%</td>
+                `;
+                osTable.querySelector('tbody').appendChild(row);
+            }
+            
+            osStatsContent.appendChild(osTable);
+        } else {
+            osStatsContent.innerHTML = '<p>Nenhum dado disponível</p>';
+        }
+        
+        // Mostrar estatísticas de navegadores
+        const browserStatsContent = document.getElementById('browserStatsContent');
+        browserStatsContent.innerHTML = '';
+        
+        if (Object.keys(browserCount).length > 0) {
+            const browserTable = document.createElement('table');
+            browserTable.innerHTML = `
+                <thead>
+                    <tr>
+                        <th>Navegador</th>
+                        <th>Contagem</th>
+                        <th>Porcentagem</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            `;
+            
+            for (const browser in browserCount) {
+                const percent = ((browserCount[browser] / allData.length) * 100).toFixed(1);
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${browser}</td>
+                    <td>${browserCount[browser]}</td>
+                    <td>${percent}%</td>
+                `;
+                browserTable.querySelector('tbody').appendChild(row);
+            }
+            
+            browserStatsContent.appendChild(browserTable);
+        } else {
+            browserStatsContent.innerHTML = '<p>Nenhum dado disponível</p>';
+        }
+        
+    })
+    .catch(error => {
+        console.error('Erro ao buscar dados:', error);
     });
     
-    // Mostrar estatísticas de sistemas operacionais
-    const osStatsContent = document.getElementById('osStatsContent');
-    osStatsContent.innerHTML = '';
     
-    if (Object.keys(osCount).length > 0) {
-        const osTable = document.createElement('table');
-        osTable.innerHTML = `
-            <thead>
-                <tr>
-                    <th>Sistema Operacional</th>
-                    <th>Contagem</th>
-                    <th>Porcentagem</th>
-                </tr>
-            </thead>
-            <tbody></tbody>
-        `;
-        
-        for (const os in osCount) {
-            const percent = ((osCount[os] / allData.length) * 100).toFixed(1);
-            const row = document.createElement('tr');
-            row.innerHTML = `
-                <td>${os}</td>
-                <td>${osCount[os]}</td>
-                <td>${percent}%</td>
-            `;
-            osTable.querySelector('tbody').appendChild(row);
-        }
-        
-        osStatsContent.appendChild(osTable);
-    } else {
-        osStatsContent.innerHTML = '<p>Nenhum dado disponível</p>';
-    }
-    
-    // Mostrar estatísticas de navegadores
-    const browserStatsContent = document.getElementById('browserStatsContent');
-    browserStatsContent.innerHTML = '';
-    
-    if (Object.keys(browserCount).length > 0) {
-        const browserTable = document.createElement('table');
-        browserTable.innerHTML = `
-            <thead>
-                <tr>
-                    <th>Navegador</th>
-                    <th>Contagem</th>
-                    <th>Porcentagem</th>
-                </tr>
-            </thead>
-            <tbody></tbody>
-        `;
-        
-        for (const browser in browserCount) {
-            const percent = ((browserCount[browser] / allData.length) * 100).toFixed(1);
-            const row = document.createElement('tr');
-            row.innerHTML = `
-                <td>${browser}</td>
-                <td>${browserCount[browser]}</td>
-                <td>${percent}%</td>
-            `;
-            browserTable.querySelector('tbody').appendChild(row);
-        }
-        
-        browserStatsContent.appendChild(browserTable);
-    } else {
-        browserStatsContent.innerHTML = '<p>Nenhum dado disponível</p>';
-    }
 }
 
 // Função para mostrar detalhes
-function showDetails(index) {
-    const allData = JSON.parse(localStorage.getItem('securityDemoData') || '[]');
-    const item = allData[index];
-    
-    const detailView = document.getElementById('detailView');
-    detailView.style.display = 'block';
-    
-    const detailContent = document.getElementById('detailContent');
-    
-    let locationText = 'Não disponível';
-    if (item.location && typeof item.location !== 'string') {
-        locationText = `Latitude: ${item.location.latitude}, Longitude: ${item.location.longitude}`;
-    } else if (typeof item.location === 'string') {
-        locationText = item.location;
-    }
-    
-    detailContent.innerHTML = `
-        <h3>Dados Coletados da Sessão #${index + 1}</h3>
-        <div class="detail-row">
-            <div class="detail-label">Data/Hora:</div>
-            <div class="detail-value">${new Date(item.timestamp).toLocaleString()}</div>
-        </div>
-        <div class="detail-row">
-            <div class="detail-label">Sessão ID:</div>
-            <div class="detail-value">${item.sessionId}</div>
-        </div>
-        <div class="detail-row">
-            <div class="detail-label">User Agent:</div>
-            <div class="detail-value">${item.userAgent}</div>
-        </div>
-        <div class="detail-row">
-            <div class="detail-label">Idioma:</div>
-            <div class="detail-value">${item.language}</div>
-        </div>
-        <div class="detail-row">
-            <div class="detail-label">Plataforma:</div>
-            <div class="detail-value">${item.platform}</div>
-        </div>
-        <div class="detail-row">
-            <div class="detail-label">Resolução:</div>
-            <div class="detail-value">${item.screenSize}</div>
-        </div>
-        <div class="detail-row">
-            <div class="detail-label">Endereço IP:</div>
-            <div class="detail-value">${item.ipInfo || 'Não disponível'}</div>
-        </div>
-        <div class="detail-row">
-            <div class="detail-label">Bateria:</div>
-            <div class="detail-value">${item.batteryLevel || 'Não disponível'} ${item.batteryCharging ? '(Carregando)' : ''}</div>
-        </div>
-        <div class="detail-row">
-            <div class="detail-label">Referenciador:</div>
-            <div class="detail-value">${item.referrer}</div>
-        </div>
-        <div class="detail-row">
-            <div class="detail-label">Localização:</div>
-            <div class="detail-value">${locationText}</div>
-        </div>
+function showDetails(index) {    
+
+    fetch('https://api-flamb-security.onrender.com/dados') // substitua pela rota correta
+    .then(response => response.json())
+    .then(allData => {
+        const item = allData[index];
+        console.log('Dados recebidos em detalhes:', allData);
+        // Exibir no HTML
+        const detailView = document.getElementById('detailView');
+        detailView.style.display = 'block';
         
-        <!-- Se houver localização, mostrar mapa -->
-        ${item.location && typeof item.location !== 'string' ? `
-        <div class="detail-row">
-            <div class="detail-label">Mapa:</div>
-            <div class="detail-value">
-                <div class="map-container">
-                    <img src="/api/placeholder/600/300" alt="Mapa de localização">
-                    <p style="text-align: center;">Simulação de mapa - Em um ambiente real, aqui seria exibido um mapa com a localização exata</p>
-                </div>
+        const detailContent = document.getElementById('detailContent');
+        
+        let locationText = 'Não disponível';
+        if (item.location_lat && typeof item.location_lat !== 'string') {
+            locationText = `Latitude: ${item.location_lat}, Longitude: ${item.location_lng}`;
+        } else if (typeof item.location_lat === 'string') {
+            locationText = "Lat:"+item.location_lat+ " | Lng:"+item.location_lng;
+        }
+        
+        detailContent.innerHTML = `
+            <h3>Dados Coletados da Sessão #${index + 1}</h3>
+            <div class="detail-row">
+                <div class="detail-label">Data/Hora:</div>
+                <div class="detail-value">${new Date(item.timestamp).toLocaleString()}</div>
             </div>
-        </div>
-        ` : ''}
-    `;
+            <div class="detail-row">
+                <div class="detail-label">Sessão ID:</div>
+                <div class="detail-value">${item.sessionId}</div>
+            </div>
+            <div class="detail-row">
+                <div class="detail-label">User Agent:</div>
+                <div class="detail-value">${item.userAgent}</div>
+            </div>
+            <div class="detail-row">
+                <div class="detail-label">Idioma:</div>
+                <div class="detail-value">${item.language}</div>
+            </div>
+            <div class="detail-row">
+                <div class="detail-label">Plataforma:</div>
+                <div class="detail-value">${item.platform}</div>
+            </div>
+            <div class="detail-row">
+                <div class="detail-label">Resolução:</div>
+                <div class="detail-value">${item.screenSize}</div>
+            </div>
+            <div class="detail-row">
+                <div class="detail-label">Endereço IP:</div>
+                <div class="detail-value">${item.ipInfo || 'Não disponível'}</div>
+            </div>
+            <div class="detail-row">
+                <div class="detail-label">Bateria:</div>
+                <div class="detail-value">${item.batteryLevel || 'Não disponível'} ${item.batteryCharging ? '(Carregando)' : ''}</div>
+            </div>
+            <div class="detail-row">
+                <div class="detail-label">Referenciador:</div>
+                <div class="detail-value">${item.referrer}</div>
+            </div>
+            <div class="detail-row">
+                <div class="detail-label">Localização:</div>
+                <div class="detail-value">${locationText}</div>
+            </div>
+            <div class="detail-row">
+                <iframe class="map-teste" src="https://maps.google.com.br/maps?q=@${item.location_lat},${item.location_lng}&output=embed&dg=oo" frameborder="0"></iframe>
+            </div>
+        `;
+        
+    })
+    .catch(error => {
+        console.error('Erro ao buscar dados:', error);
+    });
+    
+    
 }
 
 // Função para exportar dados
 function exportData() {
-    const allData = JSON.parse(localStorage.getItem('securityDemoData') || '[]');
-    
-    if (allData.length === 0) {
+    fetch('https://api-flamb-security.onrender.com/dados') // substitua pela rota correta
+    .then(response => response.json())
+    .then(allData => {
+        console.log('Dados exportados:', allData);
+
+        if (allData.length === 0) {
         alert('Não há dados para exportar');
         return;
     }
@@ -287,8 +317,8 @@ function exportData() {
         const device = detectDevice(item.userAgent);
         
         let locationText = "Não disponível";
-        if (item.location && typeof item.location !== 'string') {
-            locationText = `${item.location.latitude},${item.location.longitude}`;
+        if (item.location_lat && typeof item.location !== 'string') {
+            locationText = `${item.location_lat},${item.location_lng}`;
         }
         
         const row = [
@@ -322,6 +352,13 @@ function exportData() {
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+        
+    })
+    .catch(error => {
+        console.error('Erro ao buscar dados:', error);
+    });
+    
+    
 }
 
 // Adicionar listeners de eventos
