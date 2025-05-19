@@ -66,7 +66,7 @@ function loadData() {
     const tableBody = document.getElementById('tableBody');
     tableBody.innerHTML = '';
 
-    fetch('https://api-flamb-security.onrender.com/dados') // substitua pela rota correta
+    fetch('https://api.com/dados') // substitua pela rota correta
     .then(response => response.json())
     .then(allData => {
         console.log('Dados recebidos:', allData);
@@ -124,7 +124,7 @@ function loadData() {
 function updateDeviceStats() {
     //const allData = JSON.parse(localStorage.getItem('securityDemoData') || '[]');
 
-    fetch('https://api-flamb-security.onrender.com/dados') // substitua pela rota correta
+    fetch('https://api.com/dados') // substitua pela rota correta
     .then(response => response.json())
     .then(allData => {
         console.log('Dados recebidos para atualizar:', allData);
@@ -218,7 +218,7 @@ function updateDeviceStats() {
 // Função para mostrar detalhes
 function showDetails(index) {    
 
-    fetch('https://api-flamb-security.onrender.com/dados') // substitua pela rota correta
+    fetch('https://api.com/dados') // substitua pela rota correta
     .then(response => response.json())
     .then(allData => {
         const item = allData[index];
@@ -293,7 +293,7 @@ function showDetails(index) {
 
 // Função para exportar dados
 function exportData() {
-    fetch('https://api-flamb-security.onrender.com/dados') // substitua pela rota correta
+    fetch('https://api.com/dados') // substitua pela rota correta
     .then(response => response.json())
     .then(allData => {
         console.log('Dados exportados:', allData);

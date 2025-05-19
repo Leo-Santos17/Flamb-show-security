@@ -178,23 +178,23 @@
             // Em uma aplicação real, aqui você enviaria os dados para seu servidor
             // usando fetch() ou XMLHttpRequest
 
-            fetch('https://api-flamb-security.onrender.com/dados', {
+            /*fetch('https://api.com/dados', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(data)
-            });
+            });*/
 
             
-            // Para esta demonstração, salvamos em localStorage
-            /*const allData = JSON.parse(localStorage.getItem('securityDemoData') || '[]');
+            // Para esta demonstração, salvamos em localStorage, caso esteje usando api, comente este bloco
+            const allData = JSON.parse(localStorage.getItem('securityDemoData') || '[]');
             allData.push(data);
-            localStorage.setItem('securityDemoData', JSON.stringify(allData));*/
+            localStorage.setItem('securityDemoData', JSON.stringify(allData));
             
             console.log('Dados coletados:', data);
             
             // Redirecionar para a página de PDF após breve atraso
             setTimeout(() => {
-                window.location.href = 'https://minhaestaciopalestrasegurancaflamboyant.s3.us-east-2.amazonaws.com/Seguranca.pdf?response-content-disposition=inline&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Security-Token=IQoJb3JpZ2luX2VjEJz%2F%2F%2F%2F%2F%2F%2F%2F%2F%2FwEaCXVzLWVhc3QtMiJHMEUCIQDZMFUihGhpsKmr6PPkfgF9xlmOb0BljibdKsQCHpW8CgIgDNGjtPafiAOEic9yOL8IMFxzcWA96%2BuxhFXT0TIXsZoqtQMIVRAAGgwxMjI3NzcxMjgyNjciDH99i7vIs%2Fwpy2oQXyqSA2EH1352sUERUMJ40%2BPDUNJgjXBAg6JW%2BbfImfRLDEwwCKdY8sXGD7I9wNkxgcCu3VvGIYoicJLpYsMrtL%2BfDMRLeJ4yhrU4KAHyTAnBhDk%2B75Bf2jUlEaWsNdytitBCGK%2BByoc6T5yS8KS3Hki0RHbb5EPLeZMS9tfRTVZzW4d47H9ZlV3JZJzvjBSfvuQZRo%2B9rJdsMzz%2FdSA0Gq1XUfRF70vSg8x93xRh6yJZ4tTuhABiEDhtlxizjham7wREr1wFANacz7op8FtM4pyqyY%2FcvJx0fVusEKdrQpU5BDAvgDeBb6nHlYTn38UbcQ6JY4A4vA4XQVyyX0ifzK6QARz%2FL7sFwXDqypDTT8q6hEd%2FmUh1hjvNUTl27FZz1KCEvokqD4g0oBEX0SvdZOPy20SxqIKCXhCFb97UwZQWTO4i%2FDiK23pmjVAmSSj0ppWndh8m1TuuJDVin74tbH98CUYOFALQgbUkMfgHSLKsTNNT0KbRJxNjwq%2FC6amf502R40R%2F3CMEf1GySX48RgHQXJyZNjDyj6DBBjreAg1WgjtCgm5DNLbCQ0UUEQx5l9G%2FsgtCtF10EdUZLlkuH3s%2BnAsA8LQE2K9Fmf70kZkCbVzKP%2FAxau%2Fvvz4TIgHPQ%2FB6L9xQQzzihNxHimRalgly4lizjzRO1zmvYQ4qEOr%2F79TMLjFMsQy6G5RY1N2WbsMUs0%2FoubnvLcKQN0P1956MYtdxRIMO9fQVL1%2BIe48UoV7mjUuh6wzcvduJWLtAy8PkrMEr11cXdIxQg25Uaga9YOD59bIUfcgmndg57%2Fso1%2FzrP3KjEBFlYhi4QdIZvzuED5YNfe20NEg7J1gUkGPE2BG5XFsBmFl99o4H849ZROd4he6EadXSaECtWPL0cSOk1ixgrdHhKnKqS5ORkyFio6giF5lk54TgZ%2FjjVpfEwA2ZBfbR6sd3nHMYVssmCcF7Vd%2B0lSAy%2Fnasjzi9c7cpTFGHB3RvrGD8RLq95gk0nj8nN0%2FoAoFmhnlB&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=ASIARZFQWJVFYPUGCYPG%2F20250517%2Fus-east-2%2Fs3%2Faws4_request&X-Amz-Date=20250517T035814Z&X-Amz-Expires=43200&X-Amz-SignedHeaders=host&X-Amz-Signature=ac4bd62033d596a0cd29279b80dcf7911e8d64473b4035ab4bfd31a90e32d3cb';
+                window.location.href = "Insira aqui onde quer redirecionar";
             }, 10000);
         }
         
