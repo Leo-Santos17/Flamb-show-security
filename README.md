@@ -1,75 +1,118 @@
-📌 Descrição do Projeto
-Este repositório contém um sistema de IP Logger desenvolvido para fins educacionais, demonstrando como certas informações podem ser coletadas quando um usuário acessa um link. O projeto consiste em:
+# 🕵️‍♂️ IP Logger Educacional
 
-Uma página inicial que simula um material de apoio sobre segurança digital
+## 📌 Descrição do Projeto
 
-Um painel administrativo que exibe os dados coletados
+Este repositório apresenta um sistema de **IP Logger** desenvolvido **exclusivamente para fins educacionais**, com o objetivo de demonstrar como certas informações podem ser coletadas quando um usuário acessa um link. O sistema inclui:
 
-Um redirecionamento para um PDF após a coleta de dados
+- Uma **página inicial** que simula um material de apoio sobre segurança digital.
+    
+- Um **painel administrativo** que exibe os dados coletados.
+    
+- Um **redirecionamento automático** para um arquivo PDF após a coleta dos dados.
+    
 
-🌟 Funcionalidades Principais
-Coleta de dados:
+---
 
-Endereço IP público
+## 🌟 Funcionalidades Principais
 
-User Agent (navegador, sistema operacional, dispositivo)
+### 🔍 Coleta de Dados
 
-Idioma preferido
+- Endereço IP público
+    
+- User Agent (navegador, sistema operacional, tipo de dispositivo)
+    
+- Idioma preferido
+    
+- Resolução de tela
+    
+- Nível de bateria (quando disponível)
+    
+- Geolocalização (com permissão do usuário)
+    
+- Referenciador (origem do acesso)
+    
 
-Resolução de tela
+### 📊 Painel Administrativo
 
-Nível de bateria (quando disponível)
+- Visualização tabular dos acessos
+    
+- Estatísticas por dispositivo e navegador
+    
+- Detalhamento completo de cada acesso
+    
+- Exportação de dados para CSV
+    
 
-Geolocalização (se permitida pelo usuário)
+---
 
-Referenciador (de onde o usuário veio)
+## 🛠️ Tecnologias Utilizadas
 
-Painel administrativo:
+- **Frontend:** HTML5, CSS3, JavaScript
+    
+- **Coleta de IP:** API pública [ipify.org](https://api.ipify.org/)
+    
+- **Backend/API:** Hospedado na plataforma [Render](https://render.com/)
+    
 
-Visualização tabular dos acessos
+---
 
-Estatísticas de dispositivos e navegadores
+## 📸 Screenshots
 
-Detalhes completos de cada acesso
+### Página Inicial
 
-Exportação de dados para CSV
+_Simula material de conscientização em segurança digital_  
+![index](https://github.com/user-attachments/assets/c9cb3d5c-ac7c-4569-b4cf-5925b3ccc99d)
 
-🛠️ Tecnologias Utilizadas
-HTML5, CSS3 e JavaScript para o frontend
+### Painel Administrativo
 
-API pública para obtenção do IP (api.ipify.org)
+_Visualização dos dados coletados_  
+![admin](https://github.com/user-attachments/assets/6cc4bbef-c09a-4bca-8cb3-7c26745a1e2e)
 
-Render para hospedagem da API de coleta de dados
+### Detalhes do Acesso
 
-📸 Screenshots
-Página Inicial
-{Imagem}Página inicial simulando material de segurança digital
+_Informações específicas por visitante_  
+![detalhes](https://github.com/user-attachments/assets/fc27c537-ba58-4ffc-9c6a-0539e9326e7f)
 
-Painel Administrativo
-{Imagem}Painel administrativo mostrando dados coletados
+---
 
-Detalhes do Acesso
-{Imagem}Tela de detalhes mostrando informações específicas
+## ⚠️ Considerações Éticas e Legais
 
-⚠️ Considerações Éticas e Legais
-Este projeto foi desenvolvido apenas para fins educacionais e demonstração de conceitos de segurança digital. A coleta não autorizada de dados pessoais pode violar leis de privacidade em muitas jurisdições.
+Este projeto tem como **único propósito a educação** e a demonstração de conceitos relacionados à **segurança digital**. A coleta de dados sem o devido consentimento pode violar legislações de privacidade, como a **LGPD** ou o **GDPR**.
 
-Recomendações para uso ético:
+**Recomendações para uso ético:**
 
-Sempre obtenha consentimento explícito dos usuários
+- Obtenha **consentimento explícito** dos usuários
+    
+- Utilize os dados apenas para os fins declarados
+    
+- Evite armazenar **informações sensíveis** sem necessidade
+    
 
-Use os dados apenas para os fins declarados
+---
 
-Não armazene informações sensíveis sem necessidade
+## 🚀 Como Implementar
 
-🚀 Como Implementar
-Clone este repositório
+1. Clone este repositório:
+    
+    ```bash
+    git clone https://github.com/Leo-Santos17/Flamb-show-security.git
+    ```
+    
+2. Hospede os arquivos HTML em um servidor web (pode ser local ou online)
+    
+3. Configure os endpoints da API:
+    
+    - No arquivo `index.html` (linha ~180)
+        
+    - No arquivo `admin.js`
+        
+4. Acesse o painel administrativo via `admin.html` para visualizar os acessos
+    
 
-Hospede os arquivos HTML em um servidor web
+---
 
-Configure o endpoint da API em index.html (linha ~180) e admin.js para receber os dados
+## 📝 Licença
 
-Acesse o painel administrativo em admin.html
+Este projeto é fornecido **apenas para fins educacionais**. Verifique e siga as leis de privacidade de dados aplicáveis em sua localidade antes de qualquer implementação prática.
 
-📝 Licença
-Este projeto é disponibilizado apenas para fins educacionais. Consulte as leis locais sobre privacidade de dados antes de implementar qualquer sistema de coleta de informações.
+---
